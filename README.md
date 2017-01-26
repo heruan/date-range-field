@@ -12,10 +12,13 @@ Official releases of this add-on are available at Vaadin Directory. For Maven in
 
 ## Building and running demo
 
+```
 git clone https://github.com/heruan/date-range-field.git
-mvn clean install
-cd demo
-mvn jetty:run
+cd date-range-field
+mvn -P vaadin-prerelease clean install
+cd date-range-field-demo
+mvn -P vaadin-prerelease jetty:run
+```
 
 To see the demo, navigate to http://localhost:8080/
 

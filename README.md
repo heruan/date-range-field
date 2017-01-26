@@ -4,7 +4,7 @@
 
 ## Online demo
 
-Try the add-on demo at <url of the online demo>
+Try the add-on demo at http://demo.lova.to/date-range-field-demo
 
 ## Download release
 
@@ -58,8 +58,8 @@ Initial release.
 ## Roadmap
 
 This component is developed as a hobby with no public roadmap or any guarantees of upcoming releases. That said, the following features are planned for upcoming releases:
-- ...
-- ...
+- Better sizing behaviour
+- Shortcuts to set min/max dates
 
 ## Issue tracking
 

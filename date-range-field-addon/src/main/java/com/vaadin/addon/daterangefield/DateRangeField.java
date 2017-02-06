@@ -65,16 +65,11 @@ public class DateRangeField extends CustomField<DateRange> {
 
     private final MenuItem menuItem;
 
-    private final ValueChangeListener<LocalDate> dateFieldListener;
-
     private Registration beginDateFieldListenerRegistration;
 
     private Registration endDateFieldListenerRegistration;
 
     public DateRangeField() {
-        this.dateFieldListener = change -> this.fireEvent(new ValueChangeEvent<>(this,
-                this,
-                change.isUserOriginated()));
         this.beginDateField = new DateField();
         this.endDateField = new DateField();
         this.menuBar = new MenuBar();
@@ -82,13 +77,19 @@ public class DateRangeField extends CustomField<DateRange> {
         this.root = new CssLayout(this.beginDateField, this.endDateField);
         this.root.addStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
         this.beginDateField.addValueChangeListener(change -> {
+            DateRange oldValue = this.getValue();
             LocalDate beginDate = change.getValue();
             if (beginDate != null) {
                 LocalDate endDate = this.getEndDate();
                 if (endDate != null && endDate.compareTo(beginDate) < 0) {
                     this.endDateFieldListenerRegistration.remove();
                     this.endDateField.clear();
-                    this.endDateFieldListenerRegistration = this.endDateField.addValueChangeListener(this.dateFieldListener);
+                    this.endDateFieldListenerRegistration = this.endDateField.addValueChangeListener(event -> {
+                        LocalDate oldEndDate = event.getOldValue();
+                        this.fireEvent(new ValueChangeEvent<>(this,
+                                DateRange.between(this.getBeginDate(), oldEndDate),
+                                event.isUserOriginated()));
+                    });
                 }
             }
             this.endDateField.setRangeStart(beginDate);
@@ -145,16 +146,12 @@ public class DateRangeField extends CustomField<DateRange> {
     }
 
     public void setRange(LocalDate beginDate, LocalDate endDate) {
+        DateRange oldValue = this.getValue();
         this.detachValueChangeListeners();
         this.setBeginDate(beginDate);
         this.setEndDate(endDate);
         this.attachValueChangeListeners();
-        this.fireEvent(new ValueChangeEvent<>(this, this, false));
-    }
-
-    @Override
-    public void setValue(DateRange value) {
-        this.setRange(value);
+        this.fireEvent(new ValueChangeEvent<>(this, oldValue, false));
     }
 
     @Override
@@ -166,11 +163,22 @@ public class DateRangeField extends CustomField<DateRange> {
 
     @Override
     public void clear() {
+        DateRange oldValue = this.getValue();
         this.detachValueChangeListeners();
         this.beginDateField.clear();
         this.endDateField.clear();
         this.attachValueChangeListeners();
-        this.fireEvent(new ValueChangeEvent<>(this, this, false));
+        this.fireEvent(new ValueChangeEvent<>(this, oldValue, false));
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.beginDateField.isEmpty() && this.endDateField.isEmpty();
+    }
+
+    @Override
+    protected void doSetValue(DateRange value) {
+        this.setRange(value);
     }
 
     @Override
@@ -178,14 +186,19 @@ public class DateRangeField extends CustomField<DateRange> {
         return this.root;
     }
 
-    @Override
-    protected void doSetValue(DateRange value) {
-        this.setValue(value);
-    }
-
     private void attachValueChangeListeners() {
-        this.beginDateFieldListenerRegistration = this.beginDateField.addValueChangeListener(this.dateFieldListener);
-        this.endDateFieldListenerRegistration = this.endDateField.addValueChangeListener(this.dateFieldListener);
+        this.beginDateFieldListenerRegistration = this.beginDateField.addValueChangeListener(event -> {
+            LocalDate oldBeginDate = event.getOldValue();
+            this.fireEvent(new ValueChangeEvent<>(this,
+                    DateRange.between(oldBeginDate, this.getEndDate()),
+                    event.isUserOriginated()));
+        });
+        this.endDateFieldListenerRegistration = this.endDateField.addValueChangeListener(event -> {
+            LocalDate oldEndDate = event.getOldValue();
+            this.fireEvent(new ValueChangeEvent<>(this,
+                    DateRange.between(this.getBeginDate(), oldEndDate),
+                    event.isUserOriginated()));
+        });
     }
 
     private void detachValueChangeListeners() {

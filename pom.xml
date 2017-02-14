@@ -5,7 +5,7 @@
 	<groupId>com.vaadin.addon</groupId>
 	<artifactId>date-range-field-root</artifactId>
 	<packaging>pom</packaging>
-	<version>0.1.0</version>
+	<version>0.2.0</version>
 	<name>DateRangeField Add-on Root Project</name>
 
 	<prerequisites>
